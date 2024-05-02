@@ -1,0 +1,1 @@
+/* App för registrering för inloggning */
