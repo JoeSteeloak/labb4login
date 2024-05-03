@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 //connect to mongodb
@@ -57,7 +58,14 @@ router.post("/login", async (req, res) => {
         if(!isPasswordMatch) {
             return res.status(401).json({erro: "Incorrect username/password!"});
         } else {
-            res.status(200).json({message: "User logged in!"});
+            // create JWT
+            const payload = { username: username };
+            const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+            const response = {
+                message: "User logged in!",
+                token: token,
+            }
+            res.status(200).json({ response });
         }
     } catch (error) {
         res.status(500).json({ error: "Server error" });
