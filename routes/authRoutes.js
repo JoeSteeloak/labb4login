@@ -21,13 +21,23 @@ router.post("/register", async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // validate input GÖR BÄTTRE!
+        // validate username and password
         if (!username || !password) {
             return res.status(400).json({ error: "Invalid input, send username and password" });
         }
 
+        //validate username
+        if (username.length < 3 ) {
+            return res.status(400).json({ error: "Invalid input, username must contain atleast four (4) characters" });
+        }
+
+        //validate username
+        if (password.length < 3) {
+            return res.status(400).json({ error: "Invalid input, password must contain atleast four (4) characters" });
+        }
+
         // Correct - save user
-        const user = new User({username, password});
+        const user = new User({ username, password });
         await user.save();
 
         res.status(201).json({ message: "User created" });
@@ -42,25 +52,25 @@ router.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // validate input GÖR BÄTTRE!
+        // validate input 
         if (!username || !password) {
-            return res.status(400).json({ error: "Invalid input, send username and password" });
+            return res.status(400).json({ error: "Invalid input, enter username and password" });
         }
 
         // check credentials
-        const user = await User.findOne({username});
-        if(!user) {
-            return res.status(401).json({erro: "Incorrect username/password!"});
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ erro: "Incorrect username/password!" });
         }
 
         //check password
         const isPasswordMatch = await user.comparePassword(password);
-        if(!isPasswordMatch) {
-            return res.status(401).json({erro: "Incorrect username/password!"});
+        if (!isPasswordMatch) {
+            return res.status(401).json({ erro: "Incorrect username/password!" });
         } else {
             // create JWT
             const payload = { username: username };
-            const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn: '1h'});
+            const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
             const response = {
                 message: "User logged in!",
                 token: token,
