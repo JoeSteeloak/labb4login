@@ -27,14 +27,20 @@ router.post("/register", async (req, res) => {
         }
 
         //validate username
-        if (username.length < 3 ) {
+        if (username.length < 3) {
             return res.status(400).json({ error: "Invalid input, username must contain atleast four (4) characters" });
         }
 
-        //validate username
+        //validate password
         if (password.length < 3) {
             return res.status(400).json({ error: "Invalid input, password must contain atleast four (4) characters" });
         }
+
+        //check uniqueness of username
+        const existUsername = await User.findOne({ username: req.body.username });
+        if (existUsername) {
+            return res.status(500).json({ error: "Username unavailable"});
+        };
 
         // Correct - save user
         const user = new User({ username, password });
@@ -60,13 +66,13 @@ router.post("/login", async (req, res) => {
         // check credentials
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(401).json({ erro: "Incorrect username/password!" });
+            return res.status(401).json({ error: "Incorrect username/password!" });
         }
 
         //check password
         const isPasswordMatch = await user.comparePassword(password);
         if (!isPasswordMatch) {
-            return res.status(401).json({ erro: "Incorrect username/password!" });
+            return res.status(401).json({ error: "Incorrect username/password!" });
         } else {
             // create JWT
             const payload = { username: username };
